@@ -1,42 +1,27 @@
 package github.rudzki.michal.movieapp;
 
-import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
+import io.reactivex.Observable;
 import nucleus.presenter.Presenter;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ListingPresenter extends Presenter<ListingActivity>{
+public class ListingPresenter extends Presenter<ListingActivity> {
 
-    public void getDataAsync(String title){
-        new Thread(){
-            @Override
-            public void run(){
-                try{
-                    String result = getData(title);
-                    SearchResults searchResults = new Gson().fromJson(result, SearchResults.class);
-                    getView().setDataOnUiThread(searchResults);
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+    private Retrofit retrofit;
+
+    public ListingPresenter() {
+        retrofit = new Retrofit.Builder()
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("http://omdbapi.com")
+                .build();
     }
 
-    public String getData(String title) throws IOException {
-        String stringUrl = "http://www.omdbapi.com/?s=" + title;
-        URL url = new URL(stringUrl);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        InputStream inputStream = urlConnection.getInputStream();
-        return convertStreamToString(inputStream);
-    }
-
-    private String convertStreamToString(InputStream inputStream) {
-        java.util.Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+    public Observable<SearchResults> getDataAsync(String title, int year, String type) {
+        String stringYear = year == ListingActivity.NO_YEAR_SELECTED ? null : String.valueOf(year);
+        return retrofit.create(SearchService.class).search(title,
+                stringYear,
+                type);
     }
 }
