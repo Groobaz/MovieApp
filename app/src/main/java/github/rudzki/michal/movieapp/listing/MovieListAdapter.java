@@ -1,4 +1,4 @@
-package github.rudzki.michal.movieapp;
+package github.rudzki.michal.movieapp.listing;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +11,8 @@ import com.bumptech.glide.Glide;
 
 import java.util.Collections;
 import java.util.List;
+
+import github.rudzki.michal.movieapp.R;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MyViewHolder> {
 
@@ -37,6 +39,11 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MyVi
 
     public void setItems(List<ListingItem> items) {
         this.items = items;
+        notifyDataSetChanged();
+    }
+
+    public void addItems(List<ListingItem> items) {
+        this.items.addAll(items);
         notifyDataSetChanged();
     }
 

@@ -1,4 +1,4 @@
-package github.rudzki.michal.movieapp;
+package github.rudzki.michal.movieapp.listing;
 
 import com.google.gson.annotations.SerializedName;
 

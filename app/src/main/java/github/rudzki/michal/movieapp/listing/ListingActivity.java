@@ -1,27 +1,22 @@
-package github.rudzki.michal.movieapp;
+package github.rudzki.michal.movieapp.listing;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.annimon.stream.Stream;
-import com.annimon.stream.function.Consumer;
-
-import java.io.IOException;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import github.rudzki.michal.movieapp.R;
+import github.rudzki.michal.movieapp.RetrofitProvider;
+import github.rudzki.michal.movieapp.search.SearchResults;
 import nucleus.factory.RequiresPresenter;
 import nucleus.view.NucleusAppCompatActivity;
 
@@ -35,6 +30,7 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
     private static final String SEARCH_YEAR = "search_year";
     private static final String SEARCH_TYPE = "search_type";
     public static final int NO_YEAR_SELECTED = -1;
+    private EndlessScrollListener endlessScrollListener;
 
     private MovieListAdapter adapter;
 
@@ -54,11 +50,21 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listing);
+
+        if(savedInstanceState == null) {
+            RetrofitProvider retrofitProvider = (RetrofitProvider) getApplication();
+            getPresenter().setRetrofit(retrofitProvider.provideRetrofit());
+        }
         String title = getIntent().getStringExtra(SEARCH_TITLE);
         String type = getIntent().getStringExtra(SEARCH_TYPE);
         ButterKnife.bind(this);
         adapter = new MovieListAdapter();
         recyclerView.setAdapter(adapter);
+        LinearLayoutManager linearLayoutManager= new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        endlessScrollListener= new EndlessScrollListener(linearLayoutManager, getPresenter());
+        recyclerView.addOnScrollListener(endlessScrollListener);
+
         int year = getIntent().getIntExtra(SEARCH_YEAR, NO_YEAR_SELECTED);
 
         getPresenter().getDataAsync(title, year, type)
@@ -72,6 +78,11 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
         Toast.makeText(this, "Kliknąłem no internet image view", Toast.LENGTH_LONG).show();
     }
 
+    public  void appendItems(SearchResults searchResults){
+        adapter.addItems(searchResults.getItems());
+        endlessScrollListener.setTotalItemsNumber(Integer.parseInt(searchResults.getTotalResults()));
+    }
+
     private void error(Throwable throwable) {
         viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(noInternetImage));
     }
@@ -82,6 +93,7 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
         } else {
             viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(recyclerView));
             adapter.setItems(searchResults.getItems());
+            endlessScrollListener.setTotalItemsNumber(Integer.parseInt(searchResults.getTotalResults()));
         }
     }
 
@@ -93,7 +105,7 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
         return intent;
     }
 
-    public void setDataOnUiThread(SearchResults result, boolean isProblemWithInternet) {
+    /*public void setDataOnUiThread(SearchResults result, boolean isProblemWithInternet) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -105,5 +117,5 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
                 }
             }
         });
-    }
+    }*/
 }

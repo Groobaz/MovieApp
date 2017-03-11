@@ -5,9 +5,17 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="github.rudzki.michal.movieapp.SearchActivity">
+    tools:context="github.rudzki.michal.movieapp.search.SearchActivity">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/poster_headerID"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+    </android.support.v7.widget.RecyclerView>
 
     <android.support.design.widget.TextInputLayout
+        android:layout_below="@+id/poster_headerID"
         android:id="@+id/text_input_layout"
         android:layout_marginTop="16dp"
         android:layout_toLeftOf="@+id/search_button"
@@ -23,6 +31,7 @@
     </android.support.design.widget.TextInputLayout>
 
     <ImageButton
+        android:layout_below="@+id/poster_headerID"
         android:layout_alignParentRight="true"
         android:id="@+id/search_button"
         app:srcCompat="@drawable/ic_search_black_24dp"
