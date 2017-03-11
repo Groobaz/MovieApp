@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -24,7 +25,7 @@ import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 import static io.reactivex.schedulers.Schedulers.io;
 
 @RequiresPresenter(ListingPresenter.class)
-public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> {
+public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> implements  CurrentItemListener, ListenerShowOrHideCounter {
 
     private static final String SEARCH_TITLE = "search_title";
     private static final String SEARCH_YEAR = "search_year";
@@ -46,6 +47,9 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
     @BindView(R.id.no_results)
     FrameLayout noResults;
 
+    @BindView(R.id.counter)
+    TextView counter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +68,8 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
         recyclerView.setLayoutManager(linearLayoutManager);
         endlessScrollListener= new EndlessScrollListener(linearLayoutManager, getPresenter());
         recyclerView.addOnScrollListener(endlessScrollListener);
+        endlessScrollListener.setCurrentItemListener(this);
+        endlessScrollListener.setShowOrHideCounter(this);
 
         int year = getIntent().getIntExtra(SEARCH_YEAR, NO_YEAR_SELECTED);
 
@@ -103,6 +109,22 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
         intent.putExtra(SEARCH_YEAR, year);
         intent.putExtra(SEARCH_TYPE, typKey);
         return intent;
+    }
+
+    @Override
+    public void onNewCurrentItem(int currentItem, int totalItemsCount) {
+        counter.setText(currentItem + "/" + totalItemsCount);
+        counter.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showCounter() {
+        counter.animate().translationX(0).start();
+    }
+
+    @Override
+    public void hideCounter() {
+        counter.animate().translationX(counter.getWidth() * 2).start();
     }
 
     /*public void setDataOnUiThread(SearchResults result, boolean isProblemWithInternet) {

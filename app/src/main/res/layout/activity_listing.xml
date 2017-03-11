@@ -45,4 +45,15 @@
             </FrameLayout>
 
     </ViewFlipper>
+
+    <TextView
+        android:id="@+id/counter"
+        android:textSize="16sp"
+        android:layout_gravity="right|bottom"
+        android:background="@color/semiTransparentBlack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:visibility="gone"/>
 </FrameLayout>

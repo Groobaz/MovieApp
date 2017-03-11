@@ -1,5 +1,6 @@
 package github.rudzki.michal.movieapp.listing;
 
+import android.support.v7.view.menu.ShowableListMenu;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +16,18 @@ public class EndlessScrollListener extends RecyclerView.OnScrollListener {
     private int totalItemsNumber;
     private  boolean isLoading;
     private OnLoadPageListener listener;
+    private ListenerShowOrHideCounter showOrHideCounter;
+    private boolean isCountershown = true;
+
+    public void setShowOrHideCounter(ListenerShowOrHideCounter showOrHideCounter) {
+        this.showOrHideCounter = showOrHideCounter;
+    }
+
+    public void setCurrentItemListener(CurrentItemListener currentItemListener) {
+        this.currentItemListener = currentItemListener;
+    }
+
+    private CurrentItemListener currentItemListener;
 
     public EndlessScrollListener(LinearLayoutManager layoutManager, OnLoadPageListener listener){
         this.layoutManager = layoutManager;
@@ -35,6 +48,9 @@ public class EndlessScrollListener extends RecyclerView.OnScrollListener {
             isLoading = true;
         }
 
+        if(currentItemListener != null){
+            currentItemListener.onNewCurrentItem(lastVisibleItem, totalItemsNumber);
+        }
         Log.d("result", "lastVisible" + lastVisibleItem);
     }
 
@@ -45,5 +61,17 @@ public class EndlessScrollListener extends RecyclerView.OnScrollListener {
     public void setTotalItemsNumber(int totalItemsNumber) {
         this.totalItemsNumber = totalItemsNumber;
         isLoading = false;
+    }
+
+    @Override
+    public  void onScrollStateChanged(RecyclerView recyclerView, int newState){
+        super.onScrollStateChanged(recyclerView, newState);
+        if(isCountershown && newState == RecyclerView.SCROLL_STATE_IDLE){
+            showOrHideCounter.hideCounter();
+            isCountershown = false;
+        } else if (!isCountershown && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+            showOrHideCounter.showCounter();
+            isCountershown = true;
+        }
     }
 }
