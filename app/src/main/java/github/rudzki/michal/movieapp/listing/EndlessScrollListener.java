@@ -67,8 +67,13 @@ public class EndlessScrollListener extends RecyclerView.OnScrollListener {
     public  void onScrollStateChanged(RecyclerView recyclerView, int newState){
         super.onScrollStateChanged(recyclerView, newState);
         if(isCountershown && newState == RecyclerView.SCROLL_STATE_IDLE){
-            showOrHideCounter.hideCounter();
-            isCountershown = false;
+            recyclerView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    showOrHideCounter.hideCounter();
+                    isCountershown = false;
+                }
+            }, 3000);
         } else if (!isCountershown && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
             showOrHideCounter.showCounter();
             isCountershown = true;

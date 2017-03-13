@@ -7,6 +7,16 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class ListingItem {
+    @SerializedName("Title")
+    private String title;
+    @SerializedName("Year")
+    private String year;
+    private String imdbID;
+    @SerializedName("Type")
+    private String type;
+    @SerializedName("Poster")
+    private String poster;
+
     public String getTitle() {
         return title;
     }
@@ -27,13 +37,4 @@ public class ListingItem {
         return poster;
     }
 
-    @SerializedName("Title")
-    private String title;
-    @SerializedName("Year")
-    private String year;
-    private String imdbID;
-    @SerializedName("Type")
-    private String type;
-    @SerializedName("Poster")
-    private String poster;
 }
