@@ -87,10 +87,11 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
     }
 
     private void startLayout(String title, String type, int year) {
-        getPresenter().getDataAsync(title, year, type)
-                .subscribeOn(io())
-                .observeOn(mainThread())
-                .subscribe(this::succes, this::error);
+        getPresenter().startLoadingItems(title, year, type);
+//                getDataAsync(title, year, type)
+//                .subscribeOn(io())
+//                .observeOn(mainThread())
+//                .subscribe(this::succes, this::error);
     }
 
     @OnClick(R.id.no_internet_view)
@@ -108,14 +109,14 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
         viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(noInternetImage));
     }
 
-    private void succes(SearchResults searchResults) {
+    private void succes(ResultAgregator resultAgregator) {
         swipeRefreshLayout.setRefreshing(false);
-        if("false".equalsIgnoreCase(searchResults.getResponse())){
+        if("false".equalsIgnoreCase(resultAgregator.getResponse())){
             viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(noResults));
         } else {
             viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(swipeRefreshLayout));
-            adapter.setItems(searchResults.getItems());
-            endlessScrollListener.setTotalItemsNumber(Integer.parseInt(searchResults.getTotalResults()));
+            adapter.setItems(resultAgregator.getMovieItems());
+            endlessScrollListener.setTotalItemsNumber(resultAgregator.getTotalItemResult());
         }
     }
 
@@ -147,6 +148,11 @@ public class ListingActivity extends NucleusAppCompatActivity<ListingPresenter> 
     public void onMovieItemClick(String imdbID) {
 //        Toast.makeText(this, imdbID, Toast.LENGTH_LONG);
         startActivity(DetailActivity.createIntent(this, imdbID));
+    }
+
+    public void setNewAgregatorResult(ResultAgregator newAgregatorResult) {
+        succes(newAgregatorResult);
+
     }
 
     /*public void setDataOnUiThread(SearchResults result, boolean isProblemWithInternet) {
